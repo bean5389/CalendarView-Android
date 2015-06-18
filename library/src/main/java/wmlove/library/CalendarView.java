@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +38,6 @@ public class CalendarView extends RelativeLayout{
         mViewPager.setAdapter(mCalendarViewAdapter);
         mViewPager.setCurrentItem(getIndex());
         addView(mViewPager);
-        TextView t = new TextView(context);
-        t.setText("das qwd");
-        addView(t);
     }
 
     public CalendarView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -90,12 +88,14 @@ public class CalendarView extends RelativeLayout{
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             TimeView timeView = timeViewList.get(position);
-            return timeView;
+            Log.i("TAG",timeViewList.size()+"size");
+            container.addView(timeView);
+            return timeViewList.get(position);
         }
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            super.destroyItem(container, position, object);
+            container.removeView(timeViewList.get(position));
         }
     }
 }
