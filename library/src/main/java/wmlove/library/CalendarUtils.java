@@ -10,8 +10,14 @@ public class CalendarUtils {
         return Calendar.getInstance();
     }
 
-    public static void setToFirstDay(Calendar calendar){
+    public static void setToFirstDayInMonth(Calendar calendar){
         calendar.set(Calendar.DAY_OF_MONTH,1);
         calendar.getTimeInMillis();
     }
+
+    public static void setToFirstDayInWeek(Calendar calendar){
+        calendar.set(Calendar.DAY_OF_WEEK,1);
+        calendar.getTimeInMillis();
+    }
+
 }

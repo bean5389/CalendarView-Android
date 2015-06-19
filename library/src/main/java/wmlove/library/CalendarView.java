@@ -5,13 +5,9 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,14 +16,24 @@ import java.util.List;
 /**
  * Created by Administrator on 2015/6/17.
  */
-public class CalendarView extends RelativeLayout{
+public class CalendarView extends RelativeLayout implements View.OnClickListener{
     private ViewPager mViewPager;
     private CalendarViewAdapter mCalendarViewAdapter;
     private List<TimeView> timeViewList = new ArrayList<>();
+    private DaySelectListener mDaySelectListener = new DaySelectListener();
+
+    private class DaySelectListener implements OnDaySelectListener {
+
+        @Override
+        public void SelectCallBack(TimeView timeView) {
+            for (TimeView other : timeViewList) {
+                if (other!=timeView){other.clearSelected();}
+            }
+        }
+    }
 
     public CalendarView(Context context) {
         super(context);
-
     }
 
     public CalendarView(Context context, AttributeSet attrs) {
@@ -37,6 +43,22 @@ public class CalendarView extends RelativeLayout{
         mCalendarViewAdapter = new CalendarViewAdapter();
         mViewPager.setAdapter(mCalendarViewAdapter);
         mViewPager.setCurrentItem(getIndex());
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         addView(mViewPager);
     }
 
@@ -48,15 +70,17 @@ public class CalendarView extends RelativeLayout{
         Calendar c = CalendarUtils.getCalenar();
         int min;
         int max;
-        c.add(Calendar.MONTH,-1);
+        c.add(Calendar.MONTH,-5);
         min = c.get(Calendar.MONTH);
-        c.add(Calendar.MONTH,2);
+        c.add(Calendar.MONTH,10);
         max = c.get(Calendar.MONTH);
         Calendar current = CalendarUtils.getCalenar();
         current.set(Calendar.MONTH, min);
         while (current.get(Calendar.MONTH)<=max){
-            TimeView timeView = new TimeView(getContext());
-            timeView.setMonth(current.get(Calendar.MONTH));
+            TimeView timeView = new TimeView(getContext(),current.get(Calendar.MONTH));
+            timeView.setOnClickListener(this);
+            timeView.setDaySelectCallBack(mDaySelectListener);
+            Log.i("TAG", current.get(Calendar.MONTH) + "current");
             timeViewList.add(timeView);
             current.add(Calendar.MONTH,1);
         }
@@ -71,6 +95,16 @@ public class CalendarView extends RelativeLayout{
             }
         }
         return 0;
+    }
+
+    @Override
+    public void onClick(View view) {
+        Log.i("TAG", "Container");
+        if(view instanceof TimeView) {
+
+            TimeView timeView = (TimeView) view;
+            timeView.onClick(view);
+        }
     }
 
     private class CalendarViewAdapter extends PagerAdapter{

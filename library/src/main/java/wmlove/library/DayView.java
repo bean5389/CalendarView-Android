@@ -15,16 +15,16 @@ import android.widget.TextView;
 /**
  * Created by Administrator on 2015/6/17.
  */
-public class DayView extends TextView implements View.OnClickListener{
+public class DayView extends TextView{
 
     private int backgroupColor = Color.GREEN;
+    private int timeRange;
 
     public DayView(Context context) {
         super(context);
-        setOnClickListener(this);
         setTextAlignment(TEXT_ALIGNMENT_CENTER);
         setBackgroupColor();
-        setTextSize(30);
+        setTextSize(20);
         setHeight(150);
         setWidth(150);
         setTextColor(Color.BLACK);
@@ -57,13 +57,20 @@ public class DayView extends TextView implements View.OnClickListener{
         setBackground(drawable);
     }
 
-    public void setDay(int day){
+    public void setDay(int day,boolean showotherdays,boolean inrange){
+        if(!showotherdays){
+            String text = inrange ? day+"" : "";
+            boolean enable = inrange ? true : false;
+            setEnabled(enable);
+            setText(text);
+            return;
+        }
         setText(day + "");
 
     }
 
-    @Override
-    public void onClick(View view) {
-        postInvalidate();
+
+    public void setTimeRange(int timeRange) {
+        this.timeRange = timeRange;
     }
 }

@@ -1,30 +1,37 @@
 package wmlove.library;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 
 /**
  * Created by Administrator on 2015/6/17.
  */
 public class TimeView extends RelativeLayout implements View.OnClickListener{
     private static final int DEFAULT_DAY_IN_WEEK = 7;
-    private final int DEFAULT_ROW_HEIGHT = 50;
     private final int DEFAULT_WEEK_IN_MONTH = 6;
     private List<DayView> dayViewList = new ArrayList<>();
     private int month;
+    private boolean showotherday = false;
+    private OnDaySelectListener mDaySelectCallBack;
 
-    public TimeView(Context context) {
+    public void setDaySelectCallBack(OnDaySelectListener mDaySelectCallBack) {
+        this.mDaySelectCallBack = mDaySelectCallBack;
+    }
+
+    public TimeView(Context context,int month) {
         super(context);
-        setOnClickListener(this);
+        this.month = month;
         setUpView();
         setDayView();
     }
@@ -40,7 +47,7 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
     private LinearLayout makeRow(){
         LinearLayout row = new LinearLayout(getContext());
         row.setOrientation(LinearLayout.HORIZONTAL);
-        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,1f);
         row.setLayoutParams(params);
         return row;
     }
@@ -48,9 +55,6 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
     private void setUpView() {
         LinearLayout root = new LinearLayout(getContext());
         root.setOrientation(LinearLayout.VERTICAL);
-        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        root.setLayoutParams(params);
-
         LinearLayout row;
         for(int i=0;i<DEFAULT_WEEK_IN_MONTH;i++){
             row = makeRow();
@@ -62,15 +66,18 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
             }
             root.addView(row);
         }
-        addView(root);
+        addView(root, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
     }
 
     private void setDayView(){
         Calendar calendar = CalendarUtils.getCalenar();
-        calendar.set(Calendar.MONTH,month);
-        CalendarUtils.setToFirstDay(calendar);
+        calendar.set(Calendar.MONTH, month);
+        Log.i("TAG", calendar.get(Calendar.MONTH)+"month");
+        CalendarUtils.setToFirstDayInMonth(calendar);
+        CalendarUtils.setToFirstDayInWeek(calendar);
         for(DayView dayView : dayViewList){
-            dayView.setDay(calendar.get(Calendar.DAY_OF_MONTH));
+            dayView.setTimeRange(month);
+            dayView.setDay(calendar.get(Calendar.DAY_OF_MONTH),showotherday,calendar.get(Calendar.MONTH)==month);
             calendar.add(Calendar.DATE,1);
         }
     }
@@ -79,19 +86,23 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         return this.month;
     }
 
-    public void setMonth(int month) {
-        this.month = month;
-    }
 
     @Override
     public void onClick(View view) {
+        Log.i("TAG", "Child");
         if(view instanceof DayView){
-            for(DayView other : dayViewList){
-                other.setSelected(false);
-            }
+            clearSelected();
             DayView dayView = (DayView) view;
             dayView.setSelected(true);
+            Toast.makeText(getContext(),dayView.getText(),Toast.LENGTH_SHORT).show();
             postInvalidate();
+        }
+        mDaySelectCallBack.SelectCallBack(TimeView.this);
+    }
+
+    public void clearSelected() {
+        for(DayView other : dayViewList){
+            other.setSelected(false);
         }
     }
 }
