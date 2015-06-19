@@ -12,13 +12,20 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created by Administrator on 2015/6/17.
  */
 public class DayView extends TextView{
 
     private int backgroupColor = Color.GREEN;
-    private int timeRange;
+    private Date date;
+    private int day;
+    private int month;
 
     public DayView(Context context) {
         super(context);
@@ -57,7 +64,7 @@ public class DayView extends TextView{
         setBackground(drawable);
     }
 
-    public void setDay(int day,boolean showotherdays,boolean inrange){
+    public void setDay(boolean showotherdays,boolean inrange){
         if(!showotherdays){
             String text = inrange ? day+"" : "";
             boolean enable = inrange ? true : false;
@@ -69,8 +76,16 @@ public class DayView extends TextView{
 
     }
 
+    public void setTimeRange(Calendar calendar) {
+        this.day = calendar.get(Calendar.DAY_OF_MONTH);
+        this.month = calendar.get(Calendar.MONTH);
+        this.date = calendar.getTime();
+    }
 
-    public void setTimeRange(int timeRange) {
-        this.timeRange = timeRange;
+    public String getText(){
+        String time;
+        SimpleDateFormat format = new SimpleDateFormat("dd MMMM", Locale.ENGLISH);
+        time = format.format(date);
+        return time;
     }
 }

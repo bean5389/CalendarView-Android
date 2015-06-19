@@ -76,8 +76,8 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         CalendarUtils.setToFirstDayInMonth(calendar);
         CalendarUtils.setToFirstDayInWeek(calendar);
         for(DayView dayView : dayViewList){
-            dayView.setTimeRange(month);
-            dayView.setDay(calendar.get(Calendar.DAY_OF_MONTH),showotherday,calendar.get(Calendar.MONTH)==month);
+            dayView.setTimeRange(calendar);
+            dayView.setDay(showotherday,calendar.get(Calendar.MONTH)==month);
             calendar.add(Calendar.DATE,1);
         }
     }
