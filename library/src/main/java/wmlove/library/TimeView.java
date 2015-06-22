@@ -19,21 +19,41 @@ import java.util.List;
  */
 public class TimeView extends RelativeLayout implements View.OnClickListener{
     private static final int DEFAULT_DAY_IN_WEEK = 7;
+    private int WEEK_IN_MONTH;
     private final int DEFAULT_WEEK_IN_MONTH = 6;
     private List<DayView> dayViewList = new ArrayList<>();
-    private int month;
+    private int time;
     private boolean showotherday = false;
+    private int timeflag;
     private OnDaySelectListener mDaySelectCallBack;
+    private TimeChangeListener mTimeChangeListener;
+
+    private class TimeChangeListener implements OnTimeChangeListener{
+
+        @Override
+        public void OnTimeChange(int timeflag) {
+            Log.i("TAG", "timechange");
+            WEEK_IN_MONTH = (timeflag==Calendar.MONTH) ? 6 : 1;
+            int timefla = timeflag;
+            setDayView(timefla);
+            showotherday = true;
+
+        }
+    }
 
     public void setDaySelectCallBack(OnDaySelectListener mDaySelectCallBack) {
         this.mDaySelectCallBack = mDaySelectCallBack;
     }
 
-    public TimeView(Context context,int month) {
+    public TimeView(Context context,int time) {
         super(context);
-        this.month = month;
+        WEEK_IN_MONTH = (timeflag==Calendar.MONTH) ? 6 : 1;
+        timeflag = Calendar.WEEK_OF_YEAR;
+
+        mTimeChangeListener = new TimeChangeListener();
+        this.time = time;
         setUpView();
-        setDayView();
+        setDayView(timeflag);
     }
 
     public TimeView(Context context, AttributeSet attrs) {
@@ -56,7 +76,7 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         LinearLayout root = new LinearLayout(getContext());
         root.setOrientation(LinearLayout.VERTICAL);
         LinearLayout row;
-        for(int i=0;i<DEFAULT_WEEK_IN_MONTH;i++){
+        for(int i=0;i<WEEK_IN_MONTH;i++){
             row = makeRow();
             for(int x=0;x<DEFAULT_DAY_IN_WEEK;x++){
                 DayView day = new DayView(getContext());
@@ -69,21 +89,31 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         addView(root, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
     }
 
-    private void setDayView(){
-        Calendar calendar = CalendarUtils.getCalenar();
-        calendar.set(Calendar.MONTH, month);
-        Log.i("TAG", calendar.get(Calendar.MONTH)+"month");
-        CalendarUtils.setToFirstDayInMonth(calendar);
-        CalendarUtils.setToFirstDayInWeek(calendar);
+    private void setDayView(int timeflag){
+        Calendar calendar = getWorkingCalendar();
         for(DayView dayView : dayViewList){
             dayView.setTimeRange(calendar);
-            dayView.setDay(showotherday,calendar.get(Calendar.MONTH)==month);
+            dayView.setDay(showotherday,calendar.get(timeflag)==time);
             calendar.add(Calendar.DATE,1);
         }
     }
 
-    public int getMonth(){
-        return this.month;
+    private Calendar getWorkingCalendar(){
+        Calendar calendar = CalendarUtils.getCalenar();
+        calendar.set(timeflag, time);
+        Log.i("TAG", "time" +calendar.getTime());
+        Log.i("TAG", calendar.get(timeflag) + "month");
+        if(timeflag==Calendar.MONTH){CalendarUtils.setToFirstDayInMonth(calendar);}
+        CalendarUtils.setToFirstDayInWeek(calendar);
+        return calendar;
+    }
+
+    public int getTime(){
+        return this.time;
+    }
+
+    public OnTimeChangeListener getOnTimeChangeListener(){
+        return mTimeChangeListener;
     }
 
 
