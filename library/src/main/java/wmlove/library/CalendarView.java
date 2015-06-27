@@ -1,13 +1,18 @@
 package wmlove.library;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -27,24 +32,32 @@ import java.util.Locale;
 public class CalendarView extends RelativeLayout implements View.OnTouchListener,AbsListView.OnScrollListener{
     private ViewPager mViewPager;
     private CalendarViewAdapter mCalendarViewAdapter;
-    private List<TimeView> timeViewList = new ArrayList<>();
+    private GestureDetector mScrollGestureDetector;
     private DaySelectListener mDaySelectListener = new DaySelectListener();
-    private boolean inweek = true;
+
+    private boolean inweek = false;
     private int timeflag ;
+    private final int DEFAULT_FLING_MIN_DISTANCE = 100;
+    private final int DEFAULT_FLING_MIN_VELOCITY= 100;
+
+    private List<TimeView> timeViewList = new ArrayList<>();
     private List<OnTimeChangeListener> OnTimeChangeListenerList = new ArrayList<>();
+
+
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        if(motionEvent.getAction()==MotionEvent.ACTION_DOWN){
-            Log.i("TAG", "timechange");
-            inweek = !inweek;
-            timeflag = getTimeFlag(inweek);
-            for(OnTimeChangeListener listener : OnTimeChangeListenerList){
-                listener.OnTimeChange(timeflag);
-            }
-        }
+//        if(motionEvent.getAction()==MotionEvent.ACTION_DOWN){
+//            Log.i("TAG", "timechange");
+//            inweek = !inweek;
+//            timeflag = getTimeFlag(inweek);
+//            for(OnTimeChangeListener listener : OnTimeChangeListenerList){
+//                listener.OnTimeChange(timeflag);
+//            }
+//
+//        }
 
-        return false;
+        return mScrollGestureDetector.onTouchEvent(motionEvent);
     }
 
     @Override
@@ -56,6 +69,12 @@ public class CalendarView extends RelativeLayout implements View.OnTouchListener
     public void onScroll(AbsListView absListView, int i, int i1, int i2) {
 
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
+
 
     public int getTimeFlag(boolean inweek) {
         return inweek ? Calendar.WEEK_OF_YEAR : Calendar.MONTH;
@@ -87,7 +106,11 @@ public class CalendarView extends RelativeLayout implements View.OnTouchListener
     public CalendarView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        setOnTouchListener(this);
+        TypedArray t = context.obtainStyledAttributes(attrs,R.styleable.CalendarView);
+        inweek = t.getBoolean(R.styleable.CalendarView_viewinview,false);
+        t.recycle();
+
+        mScrollGestureDetector = new GestureDetector(context,new ScrollGestureDetectorListener());
 
         timeflag = getTimeFlag(inweek);
 
@@ -117,6 +140,7 @@ public class CalendarView extends RelativeLayout implements View.OnTouchListener
         root.addView(title);
 
         mViewPager = new ViewPager(context);
+//        mViewPager.setOnTouchListener(this);
         mCalendarViewAdapter = new CalendarViewAdapter();
         mViewPager.setAdapter(mCalendarViewAdapter);
         mViewPager.setCurrentItem(getIndex());
@@ -141,8 +165,15 @@ public class CalendarView extends RelativeLayout implements View.OnTouchListener
         addView(root);
     }
 
+
     public CalendarView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    public void setViewInWeek(boolean viewInWeek){
+        inweek = viewInWeek;
+        timeflag = getTimeFlag(inweek);
+        postInvalidate();
     }
 
     private void addTimeView(){
@@ -157,7 +188,7 @@ public class CalendarView extends RelativeLayout implements View.OnTouchListener
         current.set(timeflag, min);
         OnTimeChangeListener listener;
         while (current.get(timeflag)<=max){
-            TimeView timeView = new TimeView(getContext(),current.get(timeflag));
+            TimeView timeView = new TimeView(getContext(),current.get(timeflag),timeflag);
             timeView.setDaySelectCallBack(mDaySelectListener);
             listener = timeView.getOnTimeChangeListener();
             OnTimeChangeListenerList.add(listener);
@@ -176,6 +207,30 @@ public class CalendarView extends RelativeLayout implements View.OnTouchListener
             }
         }
         return 0;
+    }
+
+    private class ScrollGestureDetectorListener extends GestureDetector.SimpleOnGestureListener{
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if(e1.getY() - e2.getY() >= DEFAULT_FLING_MIN_DISTANCE && Math.abs(velocityY) >= DEFAULT_FLING_MIN_VELOCITY){
+                Log.i("TAG", "timechange");
+                inweek = true;
+                timeflag = getTimeFlag(inweek);
+                for(OnTimeChangeListener listener : OnTimeChangeListenerList){
+                    listener.OnTimeChange(timeflag);
+                }
+            }else if(e2.getY() - e1.getY() >= DEFAULT_FLING_MIN_DISTANCE && Math.abs(velocityY) >= DEFAULT_FLING_MIN_VELOCITY){
+                Log.i("TAG", "timechange");
+                inweek = false;
+                timeflag = getTimeFlag(inweek);
+                for(OnTimeChangeListener listener : OnTimeChangeListenerList){
+                    listener.OnTimeChange(timeflag);
+                }
+            }
+            mViewPager.invalidate();
+            postInvalidate();
+            return true;
+        }
     }
 
     private class CalendarViewAdapter extends PagerAdapter{

@@ -23,8 +23,8 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
     private final int DEFAULT_WEEK_IN_MONTH = 6;
     private List<DayView> dayViewList = new ArrayList<>();
     private int time;
+    private int timeflag = Calendar.MONTH;
     private boolean showotherday = false;
-    private int timeflag;
     private OnDaySelectListener mDaySelectCallBack;
     private TimeChangeListener mTimeChangeListener;
 
@@ -32,12 +32,10 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
 
         @Override
         public void OnTimeChange(int timeflag) {
-            Log.i("TAG", "timechange");
             WEEK_IN_MONTH = (timeflag==Calendar.MONTH) ? 6 : 1;
             int timefla = timeflag;
             setDayView(timefla);
-            showotherday = true;
-
+            postInvalidate();
         }
     }
 
@@ -45,11 +43,10 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         this.mDaySelectCallBack = mDaySelectCallBack;
     }
 
-    public TimeView(Context context,int time) {
+    public TimeView(Context context,int time,int timeflag) {
         super(context);
         WEEK_IN_MONTH = (timeflag==Calendar.MONTH) ? 6 : 1;
-        timeflag = Calendar.WEEK_OF_YEAR;
-
+        showotherday = (timeflag==Calendar.WEEK_OF_YEAR) ? true : false;
         mTimeChangeListener = new TimeChangeListener();
         this.time = time;
         setUpView();
@@ -110,6 +107,10 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
 
     public int getTime(){
         return this.time;
+    }
+
+    public void setTimeFlag(int timeflag){
+        this.timeflag = timeflag;
     }
 
     public OnTimeChangeListener getOnTimeChangeListener(){

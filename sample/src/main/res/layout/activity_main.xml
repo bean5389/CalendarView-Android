@@ -1,8 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wmlove="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context=".MainActivity">
 
     <wmlove.library.CalendarView
+        wmlove:viewinview="false"
+        android:id="@+id/calendarview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
     </wmlove.library.CalendarView>
