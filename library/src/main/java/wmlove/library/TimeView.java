@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -19,36 +20,31 @@ import java.util.List;
  */
 public class TimeView extends RelativeLayout implements View.OnClickListener{
     private static final int DEFAULT_DAY_IN_WEEK = 7;
+    private Calendar mCalendarCurrent = null;
     private int WEEK_IN_MONTH;
     private final int DEFAULT_WEEK_IN_MONTH = 6;
     private List<DayView> dayViewList = new ArrayList<>();
-    private int time;
     private int timeflag = Calendar.MONTH;
-    private boolean showotherday = false;
+    private boolean showOtherDay = false;
     private OnDaySelectListener mDaySelectCallBack;
-    private TimeChangeListener mTimeChangeListener;
+    private OnDaySelectChangeListener mOnDaySelectChangeListener;
 
-    private class TimeChangeListener implements OnTimeChangeListener{
-
-        @Override
-        public void OnTimeChange(int timeflag) {
-            WEEK_IN_MONTH = (timeflag==Calendar.MONTH) ? 6 : 1;
-            int timefla = timeflag;
-            setDayView(timefla);
-            postInvalidate();
-        }
-    }
-
-    public void setDaySelectCallBack(OnDaySelectListener mDaySelectCallBack) {
+    public void setOnDaySelectListener(OnDaySelectListener mDaySelectCallBack) {
         this.mDaySelectCallBack = mDaySelectCallBack;
     }
 
-    public TimeView(Context context,int time,int timeflag) {
+    public void setOnDaySelectChangeListener(OnDaySelectChangeListener onDaySelectChangeListener){
+        this.mOnDaySelectChangeListener = onDaySelectChangeListener;
+    }
+
+    public TimeView(Context context,Calendar calendarCurrent,int timeflag) {
         super(context);
+        /**肺都气炸了*/
+        mCalendarCurrent = CalendarUtils.getCalenar();
+        CalendarUtils.copyTo(calendarCurrent,mCalendarCurrent);
+
         WEEK_IN_MONTH = (timeflag==Calendar.MONTH) ? 6 : 1;
-        showotherday = (timeflag==Calendar.WEEK_OF_YEAR) ? true : false;
-        mTimeChangeListener = new TimeChangeListener();
-        this.time = time;
+        showOtherDay = (timeflag==Calendar.WEEK_OF_YEAR) ? true : false;
         setUpView();
         setDayView(timeflag);
     }
@@ -90,14 +86,15 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         Calendar calendar = getWorkingCalendar();
         for(DayView dayView : dayViewList){
             dayView.setTimeRange(calendar);
-            dayView.setDay(showotherday,calendar.get(timeflag)==time);
+            dayView.setDay(showOtherDay, calendar.get(timeflag) == mCalendarCurrent.get(timeflag));
             calendar.add(Calendar.DATE,1);
         }
     }
 
     private Calendar getWorkingCalendar(){
         Calendar calendar = CalendarUtils.getCalenar();
-        calendar.set(timeflag, time);
+        CalendarUtils.copyTo(mCalendarCurrent, calendar);
+        Log.i("TAG","CalendarMonth"+calendar.get(Calendar.MONTH));
         Log.i("TAG", "time" +calendar.getTime());
         Log.i("TAG", calendar.get(timeflag) + "month");
         if(timeflag==Calendar.MONTH){CalendarUtils.setToFirstDayInMonth(calendar);}
@@ -105,30 +102,41 @@ public class TimeView extends RelativeLayout implements View.OnClickListener{
         return calendar;
     }
 
-    public int getTime(){
-        return this.time;
+    public Calendar getTimeCalendar(){
+        Log.i("TAG",mCalendarCurrent.getTime()+"Timecurrent");
+        return this.mCalendarCurrent;
+    }
+
+    public Date getDate(){
+        return this.mCalendarCurrent.getTime();
+    }
+
+    public void setSelectColor(int color){
+        for(DayView dayView : dayViewList){
+            dayView.setSelectColor(color);
+        }
     }
 
     public void setTimeFlag(int timeflag){
         this.timeflag = timeflag;
     }
 
-    public OnTimeChangeListener getOnTimeChangeListener(){
-        return mTimeChangeListener;
-    }
-
 
     @Override
     public void onClick(View view) {
-        Log.i("TAG", "Child");
+        String time = null;
+        Date date = null;
         if(view instanceof DayView){
             clearSelected();
             DayView dayView = (DayView) view;
             dayView.setSelected(true);
             Toast.makeText(getContext(),dayView.getText(),Toast.LENGTH_SHORT).show();
+            time = dayView.getTime();
+            date = dayView.getDate();
             postInvalidate();
         }
-        mDaySelectCallBack.SelectCallBack(TimeView.this);
+        mDaySelectCallBack.OnDaySelect(time,date);
+        mOnDaySelectChangeListener.SelectChangeCallBack();
     }
 
     public void clearSelected() {

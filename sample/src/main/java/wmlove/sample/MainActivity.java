@@ -1,21 +1,50 @@
 package wmlove.sample;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import wmlove.library.CalendarView;
+import wmlove.library.OnDaySelectListener;
+import wmlove.library.OnTimeChangeListener;
 
 
 public class MainActivity extends Activity {
     private CalendarView calendarview;
+    private TextView mTextView;
+    private Date mDate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         calendarview = (CalendarView) findViewById(R.id.calendarview);
-        calendarview.setViewInWeek(true);
+        calendarview.setOnDaySelectListener(new OnDaySelectListener() {
+            @Override
+            public void OnDaySelect(String time, Date date) {
+                Log.i("MainActivity", "time=" + time + "date=" + date);
+            }
+        });
+        calendarview.setOnTimeChangeListener(new OnTimeChangeListener() {
+            @Override
+            public void OnTimeChange(Date currentDate) {
+                mDate = currentDate;
+                String time = new SimpleDateFormat("dd MMMM").format(mDate);
+                mTextView.setText(time);
+            }
+        });
+        calendarview.setSelectColor(Color.BLUE);
+
+
+        mTextView = (TextView)findViewById(R.id.mTextView);
+
+
     }
 
     @Override

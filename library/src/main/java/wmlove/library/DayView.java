@@ -46,9 +46,10 @@ public class DayView extends TextView{
         super(context, attrs, defStyleAttr);
     }
 
-    private void setSelectColor(int color){
+    public void setSelectColor(int color){
         this.backgroupColor = color;
         setBackgroupColor();
+        postInvalidate();
     }
 
     private void setBackgroupColor(){
@@ -60,7 +61,7 @@ public class DayView extends TextView{
                 return new LinearGradient(0,0,0,0,backgroupColor,backgroupColor, Shader.TileMode.REPEAT);
             }
         });
-        drawable.addState(new int []{android.R.attr.state_selected},shape);
+        drawable.addState(new int[]{android.R.attr.state_selected}, shape);
         setBackground(drawable);
     }
 
@@ -72,7 +73,7 @@ public class DayView extends TextView{
             setText(text);
             return;
         }
-        setText(day + "");
+        setText(String.valueOf(day));
 
     }
 
@@ -82,10 +83,14 @@ public class DayView extends TextView{
         this.date = calendar.getTime();
     }
 
-    public String getText(){
+    public String getTime(){
         String time;
         SimpleDateFormat format = new SimpleDateFormat("dd MMMM", Locale.ENGLISH);
         time = format.format(date);
         return time;
+    }
+
+    public Date getDate(){
+        return this.date;
     }
 }
