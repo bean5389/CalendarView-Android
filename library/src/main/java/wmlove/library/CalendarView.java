@@ -26,26 +26,60 @@ import java.util.Locale;
  * Created by Administrator on 2015/6/17.
  */
 public class CalendarView extends RelativeLayout {
-    private ViewPager mViewPager;
-    private CalendarViewAdapter mCalendarViewAdapter;
-    private DaySelectChanegListener mDaySelectChanegListener = new DaySelectChanegListener();
 
-    private boolean inweek = false;
-    private int TimeFlag ;
+    /**
+     * callback when dayview is selected
+     */
+    private DaySelectChangeListener mDaySelectChangeListener = new DaySelectChangeListener();
 
-    private List<TimeView> timeViewList = new ArrayList<>();
-    private List<DaySelectChanegListener> OnTimeChangeListenerList = new ArrayList<>();
-    private Calendar mCalendarMax = null;
-    private Calendar mCalendarMin = null;
-    private Calendar mCalendarCurrent = null;
+    /**
+     * callback when current view change
+     */
     private OnTimeChangeListener mOnTimeChangeListener = null;
 
+    /**
+     * container viewpager
+     */
+    private ViewPager mViewPager;
 
-    public int getTimeFlag(boolean inweek) {
-        return inweek ? Calendar.WEEK_OF_YEAR : Calendar.MONTH;
-    }
+    /**
+     * viewpager adapter
+     */
+    private CalendarViewAdapter mCalendarViewAdapter;
 
-    private class DaySelectChanegListener implements OnDaySelectChangeListener {
+    /**
+     * is calendar shown in weekview
+     */
+    private boolean inweek = false;
+
+    /**
+     * time flag
+     */
+    private int TimeFlag ;
+
+    /**
+     * content view
+     */
+    private List<TimeView> timeViewList = new ArrayList<>();
+
+    /**
+     * max calendar
+     */
+    private Calendar mCalendarMax = null;
+
+    /**
+     * min calendar
+     */
+    private Calendar mCalendarMin = null;
+
+    /**
+     * current calendar
+     */
+    private Calendar mCalendarCurrent = null;
+
+    private List<DaySelectChangeListener> OnTimeChangeListenerList = new ArrayList<>();
+
+    private class DaySelectChangeListener implements OnDaySelectChangeListener {
 
         @Override
         public void SelectChangeCallBack() {
@@ -174,7 +208,9 @@ public class CalendarView extends RelativeLayout {
         return mCalendarMax;
     }
 
-
+    public int getTimeFlag(boolean inweek) {
+        return inweek ? Calendar.WEEK_OF_YEAR : Calendar.MONTH;
+    }
 
     private void addTimeView(){
         Calendar minCalendar = getMinCalendarDay();
@@ -186,7 +222,7 @@ public class CalendarView extends RelativeLayout {
         Log.i("TAG",minCalendar.getTime()+"minCalendar"+maxCalendar.getTime()+"maxCalendar"+mCalendarCurrent.getTime()+"mCalendarCurrent");
         while (CalendarUtils.isBefore(mCalendarCurrent, maxCalendar)){
             TimeView timeView = new TimeView(getContext(),mCalendarCurrent,TimeFlag);
-            timeView.setOnDaySelectChangeListener(mDaySelectChanegListener);
+            timeView.setOnDaySelectChangeListener(mDaySelectChangeListener);
             timeViewList.add(timeView);
             Log.i("TAG", mCalendarCurrent.get(Calendar.MONTH) + "");
             mCalendarCurrent.add(TimeFlag, 1);
