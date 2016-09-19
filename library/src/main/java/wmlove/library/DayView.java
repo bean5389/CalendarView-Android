@@ -8,8 +8,10 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -22,7 +24,7 @@ import java.util.Locale;
  */
 public class DayView extends TextView{
 
-    private int backgroupColor = Color.GREEN;
+    private int backgroupColor = Color.YELLOW;
     private Date date;
     private int day;
     private int month;
@@ -32,11 +34,14 @@ public class DayView extends TextView{
         setTextAlignment(TEXT_ALIGNMENT_CENTER);
         setBackgroupColor();
         setTextSize(20);
-        setHeight(150);
-        setWidth(150);
+        int size = SizeUtils.getSize(context);
+        setHeight(size);
+        setWidth(size);
         setTextColor(Color.BLACK);
         setGravity(Gravity.CENTER);
     }
+
+
 
     public DayView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -58,7 +63,7 @@ public class DayView extends TextView{
         shape.setShaderFactory(new ShapeDrawable.ShaderFactory() {
             @Override
             public Shader resize(int i, int i1) {
-                return new LinearGradient(0,0,0,0,backgroupColor,backgroupColor, Shader.TileMode.REPEAT);
+                return new LinearGradient(0,0,0,0,Color.RED,Color.RED, Shader.TileMode.REPEAT);
             }
         });
         drawable.addState(new int[]{android.R.attr.state_selected}, shape);

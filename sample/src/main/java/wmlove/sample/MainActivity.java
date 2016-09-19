@@ -1,78 +1,82 @@
 package wmlove.sample;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Timer;
 
+import wmlove.library.CalendarUtils;
 import wmlove.library.CalendarView;
 import wmlove.library.OnDaySelectListener;
 import wmlove.library.OnTimeChangeListener;
 
 
 public class MainActivity extends Activity {
-    private CalendarView calendarview;
-    private TextView mTextView;
+    private CalendarView calendarview1,calendarview2;
+    private TextView dateTextView1,dateTextView2;
     private Date mDate;
-    final double[] t = {0,0};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        calendarview = (CalendarView) findViewById(R.id.calendarview);
-        initView();
 
-        mTextView = (TextView)findViewById(R.id.mTextView);
+        dateTextView1 = (TextView)findViewById(R.id.dateTextView1);
+        Date time = Calendar.getInstance().getTime();
+        dateTextView1.setText(new SimpleDateFormat("MMMM").format(time));
 
-//        final ProgressDialog dialog = ProgressDialog.show(MainActivity.this, "请稍后", "加载中...");
-//        new Thread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    Thread.sleep(3000);
-//                    initView();
-//                    t[0] = Calendar.MILLISECOND;
-//
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }finally {
-//                    t[1] = Calendar.MILLISECOND;
-//                    dialog.cancel();
-//                }
-//            }
-//        }).start();
-//
-//        Log.i("Time",t[0]-t[1]+"");
-    }
-
-    private void initView() {
-
-        calendarview.setOnDaySelectListener(new OnDaySelectListener() {
+        calendarview1 = (CalendarView) findViewById(R.id.calendarview1);
+        calendarview1.setOnDaySelectListener(new OnDaySelectListener() {
             @Override
             public void OnDaySelect(String time, Date date) {
-                Log.i("MainActivity", "time=" + time + "date=" + date);
+                String timez = new SimpleDateFormat("MMMMdd").format(date);
+                dateTextView1.setText(timez + "日");
             }
         });
-        calendarview.setOnTimeChangeListener(new OnTimeChangeListener() {
+        calendarview1.setOnTimeChangeListener(new OnTimeChangeListener() {
             @Override
             public void OnTimeChange(Date currentDate) {
                 mDate = currentDate;
-                String time = new SimpleDateFormat("dd MMMM").format(mDate);
-                mTextView.setText(time);
+                String time = new SimpleDateFormat("MMMM").format(mDate);
+                dateTextView1.setText(time);
             }
         });
-        calendarview.setSelectColor(Color.BLUE);
+
+        calendarview1.setSelectColor(Color.BLUE);
+
+
+        dateTextView2 = (TextView)findViewById(R.id.dateTextView2);
+        Date time2 = Calendar.getInstance().getTime();
+        dateTextView2.setText(new SimpleDateFormat("MMMM").format(time2));
+
+        calendarview2 = (CalendarView) findViewById(R.id.calendarview2);
+        calendarview2.setOnDaySelectListener(new OnDaySelectListener() {
+            @Override
+            public void OnDaySelect(String time, Date date) {
+                String timez = new SimpleDateFormat("MMMMdd").format(date);
+                dateTextView2.setText(timez + "日");
+            }
+        });
+        calendarview2.setOnTimeChangeListener(new OnTimeChangeListener() {
+            @Override
+            public void OnTimeChange(Date currentDate) {
+                mDate = currentDate;
+                String time = new SimpleDateFormat("MMMM").format(mDate);
+                dateTextView2.setText(time);
+            }
+        });
+
+        calendarview2.setSelectColor(Color.BLUE);
+
+
+
 
 
     }
