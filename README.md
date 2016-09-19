@@ -6,11 +6,11 @@
 <br>
 # 周视图<br>
 默认为月视图，如果你想改为月视图，请修改viewinview = true<br>
-'
+```
 	<wmlove.library.CalendarView
         wmlove:viewinview="false"
         android:id="@+id/calendarview"
         android:layout_width="wrap_content"
         android:layout_height="350dp">
     </wmlove.library.CalendarView>
-'
+```
